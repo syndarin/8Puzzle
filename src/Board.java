@@ -93,7 +93,24 @@ public class Board {
 	}
 
 	public Board twin() {
-		return null;
+		int[] twinBlocks = Arrays.copyOf(blocks, blocks.length);
+		
+		int swapFrom = 0;
+		int swapTo = 0;
+		
+		if (emptyBlockIndex > 0 && emptyBlockIndex < BLANK_FIELD_INDEX) {
+			swapFrom = emptyBlockIndex - 1;
+			swapTo = emptyBlockIndex + 1;
+		} else {
+			swapFrom = BLANK_FIELD_INDEX / 2;
+			swapTo = BLANK_FIELD_INDEX / 2 + 1;
+		}
+		
+		int temp = twinBlocks[swapFrom];
+		twinBlocks[swapFrom] = twinBlocks[swapTo];
+		twinBlocks[swapTo] = temp;
+		
+		return new Board(twinBlocks, DIMENSION, emptyBlockIndex);
 	}
 
 	public boolean equals(Object y) {

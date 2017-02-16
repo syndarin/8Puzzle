@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import edu.princeton.cs.algs4.MinPQ;
@@ -26,44 +28,86 @@ public class Solver {
 		}
 	}
 	
-	private MinPQ<SearchNode> queue;
+	private MinPQ<SearchNode> queueInitial;
+	private MinPQ<SearchNode> queueAlternative;
 
 	private List<Board> solution;
 	
+	private int moves = -1;
+	
+	private boolean solvable;
+	
 	public Solver(Board initial) {
-		queue = new MinPQ<>();
+		queueInitial = new MinPQ<>();
+		queueAlternative = new MinPQ<>();
 		
 		SearchNode initialNode = new SearchNode(initial, null);
-		queue.insert(initialNode);
+		queueInitial.insert(initialNode);
 		
-		SearchNode mpNode = queue.delMin();
+		SearchNode alternativeNode = new SearchNode(initial.twin(), null);
+		queueAlternative.insert(alternativeNode);
 		
-		while (!mpNode.board.isGoal()) {
-			
-			for (Board board : mpNode.board.neighbors()) {
-				if (mpNode.previous == null || !mpNode.previous.board.equals(board)) {
-					queue.insert(new SearchNode(board, mpNode));
-				}
-			} 
-			
-			mpNode = queue.delMin();
+		SearchNode mpNodeInitial = queueInitial.delMin();
+		SearchNode mpNodeAlternative = queueAlternative.delMin();
+		
+		boolean processInitial = true;
+		boolean goalReached = false;
+		
+		while (!goalReached) {
+
+			if (processInitial) {
+				mpNodeInitial = performAStarSearchIteration(mpNodeInitial, queueInitial);
+				goalReached = mpNodeInitial.board.isGoal();
+			} else {
+				mpNodeAlternative = performAStarSearchIteration(mpNodeAlternative, queueAlternative);
+				goalReached = mpNodeAlternative.board.isGoal();
+			}
+
+			processInitial = !processInitial;
 		}
 		
-		do {
+		solvable = !processInitial;
+		
+		solution = getSolution(solvable ? mpNodeInitial : mpNodeAlternative);
+		
+		moves = solution.size() - 1;
+		
+		/*do {
 			
 			System.out.println(mpNode.board.toString());
 			
 			mpNode = mpNode.previous;
 			
-		} while (mpNode != null);
+		} while (mpNode != null);*/
+	}
+	
+	private List<Board> getSolution(SearchNode searchNode) {
+		List<Board> result = new ArrayList<>();
+		while (searchNode != null) {
+			result.add(searchNode.board);
+			searchNode = searchNode.previous;
+		}
+		
+		Collections.reverse(result);
+		return result;
 	}
 
+	private SearchNode performAStarSearchIteration(SearchNode currentNode, MinPQ<SearchNode> queue) {
+		for (Board board : currentNode.board.neighbors()) {
+			if (currentNode.previous == null || !currentNode.previous.board.equals(board)) {
+				queue.insert(new SearchNode(board, currentNode));
+			}
+		}
+		
+		return queue.delMin();
+	}
+	
 	public boolean isSolvable() {
-		return false;
+		return solvable;
 	}
 
 	public int moves() {
-		return 0;
+		return moves;
 	}
 
 	public Iterable<Board> solution() {
