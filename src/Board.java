@@ -116,7 +116,7 @@ public class Board {
 		int[] possibleIndexesForMove = getIndexesForMove();
 		
 		for (int i = 0; i < possibleIndexesForMove.length; i++) {
-			if (isIndexInRange(possibleIndexesForMove[i])) {
+			if (isMoveValid(possibleIndexesForMove[i], emptyBlockIndex)) {
 				Board moveBoard = createBoardWithNextMove(possibleIndexesForMove[i]); 
 				result.add(moveBoard);
 			}
@@ -132,8 +132,17 @@ public class Board {
 		return new Board(otherBoardBlocks, DIMENSION, indexFrom);
 	}
 	
-	private boolean isIndexInRange(int index) {
-		return index >= 0 && index <= BLANK_FIELD_INDEX;
+	private boolean isMoveValid(int from, int to) {
+		if (from < 0 || from > BLANK_FIELD_INDEX) {
+			return false;
+		} else {
+			int fromRow = from / DIMENSION;
+			int toRow = to / DIMENSION;
+			int fromCol = from % DIMENSION;
+			int toCol = to % DIMENSION;
+			
+			return fromRow == toRow || fromCol == toCol;
+		}
 	}
 	
 	private int[] getIndexesForMove() {
