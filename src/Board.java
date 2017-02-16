@@ -68,8 +68,12 @@ public class Board {
 	}
 	
 	private int getManhattanDistance(int fromPosition, int toPosition) {
-		int absLength = Math.abs(fromPosition - toPosition);
-		return absLength / DIMENSION + absLength % DIMENSION;
+		int fromRow = fromPosition / DIMENSION;
+		int fromCol = fromPosition % DIMENSION;
+		int toRow = toPosition / DIMENSION;
+		int toCol = toPosition % DIMENSION;
+		
+		return Math.abs(fromRow - toRow) + Math.abs(fromCol - toCol) ;
 	}
 
 	public boolean isGoal() {
@@ -173,9 +177,9 @@ public class Board {
 
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append("\n");
+		builder.append(DIMENSION + "\n");
 		for (int i = 0; i < blocks.length; i++) {
-			builder.append(blocks[i] == 0 ? "    " : String.format("%4d", blocks[i]));
+			builder.append(" " + blocks[i]);
 			
 			if (i % DIMENSION == DIMENSION - 1) {
 				builder.append("\n");
@@ -187,15 +191,15 @@ public class Board {
 	
 	public static void main(String[] args) {
 		int[][] blocks = new int[][]{
-			new int[]{8, 1, 3},
-			new int[]{4, 0, 2},
-			new int[]{7, 6, 5}
+			new int[]{0, 1, 3},
+			new int[]{4, 2, 5},
+			new int[]{7, 8, 6}
 		};
 		
 		int[][] otherBlocks = new int[][]{
-			new int[]{8, 1, 3},
-			new int[]{4, 0, 2},
-			new int[]{7, 6, 5}
+			new int[]{0, 1, 3},
+			new int[]{4, 2, 5},
+			new int[]{7, 8, 6}
 		};
 		
 		Board board = new Board(blocks);
@@ -208,10 +212,6 @@ public class Board {
 		
 		assert(board.dimension() == 3);
 		
-		assert(board.hamming() == 5);
-		
-		assert(board.manhattan() == 10);
-		
 		Iterable<Board> nextMoveBoards = board.neighbors();
 		int count = 0;
 		for (Board b : nextMoveBoards) {
@@ -219,7 +219,7 @@ public class Board {
 			count++;
 		}
 		
-		assert(count == 4);
+		assert(count == 2);
 		
 		System.out.println("Tests passed");
 		System.out.println(board.toString());
