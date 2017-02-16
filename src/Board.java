@@ -1,4 +1,6 @@
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class Board {
 	
@@ -28,6 +30,13 @@ public class Board {
 		}
 		
 		BLANK_FIELD_INDEX = this.blocks.length - 1;
+	}
+	
+	private Board(int[] blocks, int dimension, int blankFieldIndex) {
+		DIMENSION = dimension;
+		BLANK_FIELD_INDEX = DIMENSION * DIMENSION - 1;
+		this.blocks = blocks;
+		this.emptyBlockIndex = blankFieldIndex;
 	}
 
 	public int dimension() {
@@ -99,7 +108,41 @@ public class Board {
 	}
 
 	public Iterable<Board> neighbors() {
-		return null;
+		return createNeighbourBoards();
+	}
+	
+	private List<Board> createNeighbourBoards() {
+		List<Board> result = new ArrayList<>();
+		int[] possibleIndexesForMove = getIndexesForMove();
+		
+		for (int i = 0; i < possibleIndexesForMove.length; i++) {
+			if (isIndexInRange(possibleIndexesForMove[i])) {
+				Board moveBoard = createBoardWithNextMove(possibleIndexesForMove[i]); 
+				result.add(moveBoard);
+			}
+		}
+		
+		return result;
+	}
+	
+	private Board createBoardWithNextMove(int indexFrom) {
+		int[] otherBoardBlocks = Arrays.copyOf(blocks, blocks.length);
+		otherBoardBlocks[indexFrom] = 0;
+		otherBoardBlocks[emptyBlockIndex] = blocks[indexFrom];
+		return new Board(otherBoardBlocks, DIMENSION, indexFrom);
+	}
+	
+	private boolean isIndexInRange(int index) {
+		return index >= 0 && index <= BLANK_FIELD_INDEX;
+	}
+	
+	private int[] getIndexesForMove() {
+		return new int[] {
+			emptyBlockIndex - 1, 
+			emptyBlockIndex + 1, 
+			emptyBlockIndex - DIMENSION, 
+			emptyBlockIndex + DIMENSION
+		};
 	}
 
 	public String toString() {
@@ -142,6 +185,15 @@ public class Board {
 		assert(board.hamming() == 5);
 		
 		assert(board.manhattan() == 10);
+		
+		Iterable<Board> nextMoveBoards = board.neighbors();
+		int count = 0;
+		for (Board b : nextMoveBoards) {
+			System.out.println(b.toString());
+			count++;
+		}
+		
+		assert(count == 4);
 		
 		System.out.println("Tests passed");
 		System.out.println(board.toString());
