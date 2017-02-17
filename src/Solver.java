@@ -53,6 +53,14 @@ public class Solver {
 		boolean processInitial = true;
 		boolean goalReached = false;
 		
+		if (mpNodeInitial.board.isGoal()) {
+			goalReached = true;
+			processInitial = false;
+		} else if (mpNodeAlternative.board.isGoal()) {
+			goalReached = true;
+			processInitial = true;
+		}
+		
 		while (!goalReached) {
 
 			if (processInitial) {
@@ -68,17 +76,9 @@ public class Solver {
 		
 		solvable = !processInitial;
 		
-		solution = getSolution(solvable ? mpNodeInitial : mpNodeAlternative);
+		solution = solvable ? getSolution(solvable ? mpNodeInitial : mpNodeAlternative) : null;
 		
-		moves = solution.size() - 1;
-		
-		/*do {
-			
-			System.out.println(mpNode.board.toString());
-			
-			mpNode = mpNode.previous;
-			
-		} while (mpNode != null);*/
+		moves = solvable ? solution.size() - 1 : -1;
 	}
 	
 	private List<Board> getSolution(SearchNode searchNode) {
